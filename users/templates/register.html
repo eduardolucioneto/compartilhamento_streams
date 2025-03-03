@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block conteudo %}
+
+<div class="'container">
+    <h1 class="text-center">Cadastro</h1>
+    <form action="{% url 'register' %}" method="POST">
+        {% csrf_token %} 
+        <div class="col-md-6 mx-auto">
+            <label for="email" class="form-label">E-mail</label>
+            <input type="text" class="form-control" id="email" name="email" aria-describedby="email">           
+        </div>
+        <div class="col-md-6 mx-auto">
+           <label for="username" class="form-label">Username</label>
+           <input type="text" class="form-control" id="username" name="username" aria-describedby="username">           
+        </div>
+        <div class="col-md-6 mx-auto">
+              <label for="senha" class="form-label">Senha</label>
+              <input type="password" class="form-control" id="senha" name="senha">
+        </div>           
+        <div class="d-flex justify-content-center">
+           <button type="submit" class="btn btn-primary mt-3">Cadastrar</button>
+        </div>
+     </form>
+     <br>
+</div>
+{% endblock %}

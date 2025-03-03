@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block conteudo %}
+
+<div class="container">
+    <br>
+    <h1 class="text-center">Login</h1>
+         
+      <form action="{% url 'trocar_senha' %}" method="POST">
+         {% csrf_token %} 
+         <div class="col-md-6 mx-auto">
+            <label for="senha_atual" class="form-label">Senha Atual</label>
+            <input type="password" class="form-control" id="senha_atual" name="senha_atual" aria-describedby="senha_atual">           
+         </div>
+         <!--
+         <div>
+            <label for="nova_senha">Nova Senha:</label>
+            <input type="password" id="nova_senha" name="nova_senha" required>
+        </div>-->
+         <div class="col-md-6 mx-auto">
+               <label for="nova_senha" class="form-label">Nova Senha</label>
+               <input type="password" class="form-control" id="nova_senha" name="nova_senha">
+         </div>    
+         <!--<div>
+            <label for="confirmar_senha">Confirmar Nova Senha:</label>
+            <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+        </div>  -->
+        <div class="col-md-6 mx-auto">
+            <label for="confirmar_senha" class="form-label">Confirmar Nova Senha</label>
+            <input type="password" class="form-control" id="confirmar_senha" name="confirmar_senha">
+        </div>
+        <div class="d-flex justify-content-center">
+            <button type="submit" class="btn btn-primary mt-3">Alterar Senha</button>
+        </div>
+        <!--<button type="submit">Alterar Senha</button>       -->
+         
+      </form>
+      <br>   
+</div>
+
+{% endblock %}
+

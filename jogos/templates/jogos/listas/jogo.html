@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+
+{% block conteudo %}
+    <div class="container">
+        <!--<h3>Cadastro</h3>-->
+        <p class="lead">
+        {% if user.is_authenticated %}
+        <h1>Lista de Jogos</h1>
+    <!--<a href="{% url 'cadastrar-jogo' %}" class="btn btn-primary btn-sm">
+        Adicionar Jogo</a>-->
+    </p>
+    </div>
+    <div class="container">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <tr>
+                    <th>País</th>                
+                    <th>Time A</th>
+                    <th>Time B</th>
+                    <th>Data e Hora</th>
+                    <th>Observações</th>
+                    <th>Streamer</th>
+                    <th>Opções</th>
+                </tr>
+        
+                {% for jogo in object_list %}
+                <tr>
+                    <td>{{ jogo.pais }}                
+                    <td>{{ jogo.timea }}
+                    <td>{{ jogo.timeb }}
+                    <td>{{ jogo.horario }}
+                    <td>{{ jogo.observacoes }}
+                    <td>{{ jogo.usuario }}
+                    <td>
+                        <a href="{% url 'streams' jogo.pk %}" class="btn btn-warning btn-sm" title="Assistir"><i class="bi bi-tv"></i></a>
+                        {% if request.user == jogo.usuario %}
+                            <a href="{% url 'atualizar-jogo' jogo.pk %}" class="btn btn-primary btn-sm" title="Editar"><i class="bi bi-pencil-fill"></i></a> 
+                            <a href="{% url 'deletar-jogo' jogo.pk %}" class="btn btn-danger btn-sm" title="Excluir"><i class="bi bi-trash3-fill"></i></a>   
+                            <a href="{% url 'streams' jogo.pk %}" title="Compartilhar"><i class="bi bi-share-fill"></i></a>         
+                        {% endif %}            
+                        
+                    </td>
+                </tr>
+                {% empty %}
+                
+                <tr>
+                    <td colspan='3'>Nenhum campo registrado.</td>
+                </tr>
+        
+                {% endfor %}    
+            </table>
+        </div>
+        {% endif %}
+    </div>
+        {% if request.user.is_authenticated and request.user.is_staff %}
+        <div class="d-flex justify-content-center my-3">
+            <a href="{% url 'cadastrar-jogo' %}" class="btn btn-primary btn-sm">
+                Adicionar Jogo
+            </a>
+        </div>
+        
+        {% endif %}
+    </div>
+    
+
+{% endblock %}
+

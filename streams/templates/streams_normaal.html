@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+<head>  
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <style>
+        #video-container {
+            display: flex;
+            flex-direction: column; /* Alinha os vídeos em coluna */
+            align-items: center; /* Centraliza os vídeos */
+        }
+
+        video {
+            width: 100%; /* Ajusta a largura dos vídeos */
+            max-width: 600px; /* Define uma largura máxima para os vídeos */
+            margin-bottom: 10px; /* Espaçamento entre os vídeos */
+        }
+    </style>
+</head>
+{% block conteudo %}
+<br>
+<br>
+
+<div class="container">
+    <!--<h3 id="label-username">USERNAME</h3>-->
+    <!--<h3 id="label-username">USERNAME</h3>
+    <div>
+        <input id="username" placeholder="Digite seu nome de usuário">
+        <button id="btn-join">Entrar na Sala</button>
+    </div>-->
+    <!--<h1>Usuário: {{ request.user.username }}</h1>-->
+    <div class="main-grid-container">
+        <div id="video-container">
+            <div>
+                <video id="local-video" autoplay playsinline></video>
+            </div>
+            <div>
+                <video id="remote-video" autoplay playsinline></video>
+            </div>
+        </div>
+
+        <div id="chat">
+            <h3>CHAT</h3>
+            <div id="messages">
+                <ul id="message-list"></ul>
+            </div>
+            <div>
+                <input id="msg" class="mb-1" placeholder="Digite sua mensagem">
+                <button id="btn-send-msg" class="mb-1">Enviar Mensagem</button>                
+            </div><br>
+            <button id="btn-share-screen">Compartilhar Tela</button> 
+            <button id="btn-stop-share-screen">Parar Compartilhamento</button><br><br>                      
+            <button id="btn-toggle-audio" aria-label="Ativar/Desativar Áudio">Audio Mute</button>
+            <!--<button id="btn-toggle-video" aria-label="Ativar/Desativar Vídeo">Video Off</button>-->   
+        </div>
+    </div>
+</div>
+    <script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+
+{% endblock %}
+</html>
+

@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block conteudo %}
+    <div class="container text-center">
+        <!-- <h3>Cadastro</h3> -->
+        <p class="lead">
+            {% if user.is_authenticated %}
+                <h1>Excluir Jogo?</h1>
+            </p>
+        </div>
+        <div class="container d-flex justify-content-center">
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <tr>
+                        <form action="" method="POST">
+                            <p>
+                                Deseja excluir o registro: <strong>{{ object }}</strong>?
+                            </p>
+
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-danger">Excluir</button>
+                            </div>
+                        </form>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+

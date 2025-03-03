@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block conteudo %}
+
+<div class="container mt-7" >
+<!-- 
+    <textarea id="sala" cols="70" rows="15"></textarea><br>
+    <input type="text" id="texto" size="100"><br>
+        <button class="btn-primary">
+            <input type="button" id="botao" value="Enviar" >
+        </button> -->
+    <div class="container mt-3 mb-3">
+        <textarea id="sala" cols="70" rows="15"></textarea><br>
+        <div class="mt-3">
+            <input type="text" id="texto" size="70"><br>
+        </div>        
+        <button id="botao" class="btn btn-primary mt-3">Enviar</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    var nome_sala = {{ nome_sala_json }};
+
+    // Criar conexão WebSocket
+    var chatSocket = new WebSocket(
+        'ws://' + window.location.host + '/ws/chat/' + nome_sala + '/'
+    );
+
+    // Quando uma mensagem for recebida
+    chatSocket.onmessage = function(e) {
+        var data = JSON.parse(e.data);
+        var mensagem = data['mensagem'];
+        var usuario = data['usuario'];
+        var hora = data['hora'];
+        var salaElement = document.querySelector('#sala');
+        salaElement.value += `[${hora}] ${usuario}: ${mensagem}\n`;
+    };
+
+    // Quando o WebSocket fechar inesperadamente
+    chatSocket.onclose = function(e) {
+        console.error('O chat encerrou de forma inesperada.');
+    };
+
+    // Enviar mensagem ao clicar no botão
+    document.querySelector('#botao').onclick = function(e) {
+        var mensagemInput = document.querySelector('#texto');
+        var mensagem = mensagemInput.value;
+        if (mensagem.trim() !== '') {
+            chatSocket.send(JSON.stringify({
+                'mensagem': mensagem
+            }));
+            mensagemInput.value = ''; // Limpa o campo de texto
+        }
+    };
+
+    // Enviar mensagem ao pressionar Enter
+    document.querySelector('#texto').onkeyup = function(e) {
+        if (e.keyCode === 13) { // Verifica se Enter foi pressionado
+            document.querySelector('#botao').click();
+        }
+    };
+</script>
+{% endblock %}

@@ -1,0 +1,136 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {% block titulo %}
+    <title>Compartilhamento de Streams</title>
+    {% endblock %}
+    
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <!-- ÍCONES DO BOOTSTRAP -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+    {% block extra_styles %}
+    <style>
+
+        body {
+                padding-top: 56px; /* Ajuste conforme necessário */
+            }
+        /* Estilo da janela do formulário */
+        #login-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            padding: 20px;
+            background: #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            display: none; /* Inicialmente escondido */
+        }
+
+        #login-popup .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+    {% endblock %}
+</head>
+<body>
+    {% block logo %}{% endblock %}
+
+    {% block menu %}
+    <nav class="navbar navbar-expand-lg bg-warning fixed-top">
+        <br>
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'sobre' %}"><strong>Snipers</strong></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item"><a class="nav-link active" href="{% url 'ladder' %}"><strong>Ladder</strong></a></li>
+              {% if request.user.is_authenticated %}
+              <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'listar-jogos' %}"><strong>Jogos</strong></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="{% url 'cadastrar-jogo' %}"><strong>Cadastro de Jogo</strong></a>
+                </li>                
+              {% endif %}                
+                <li class="nav-item">
+                    <a class="nav-link active" href="{% url 'contato' %}"><strong>Contato</strong></a>
+                </li>   
+                <!-- {% if user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link active" href="{% url 'index_chat' %}"><strong>Chat</strong></a>
+                </li>
+                {% endif %} -->
+                {% if not user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link active" href="{% url 'register' %}"><strong>SignUp</strong></a>
+                </li>
+                {% endif %}
+            
+            </ul>         
+            <form class="d-flex" role="Login">
+              {% if request.user.is_authenticated %}
+                  <span class="navbar-text me-3">Olá, <strong>{{ request.user.username }}</strong>!</span>
+                  <a class="btn btn-outline-danger" href="{% url 'logout' %}">Logout</a>
+              {% else %}
+                  <button id="btn-login-popup" class="btn btn-outline-success">Login</button>
+              {% endif %}
+          </form>
+          </div>
+        </div>
+    </nav>
+    {% endblock %}
+
+    {% block conteudo %}
+    {% endblock %}
+
+    <div id="login-popup">
+        <!-- O conteúdo do formulário será carregado aqui -->
+        <div class="popup-header">
+            <h5>Login</h5>
+            <button id="close-login-popup" class="btn-close" aria-label="Fechar"></button>
+        </div>
+        <div id="login-content"></div>
+    </div>
+
+    {% block extra_scripts %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const btnLoginPopup = document.getElementById("btn-login-popup");
+            const loginPopup = document.getElementById("login-popup");
+            const closeLoginPopup = document.getElementById("close-login-popup");
+            const loginContent = document.getElementById("login-content");
+
+            // Mostrar popup e carregar o formulário
+            btnLoginPopup?.addEventListener("click", function (e) {
+                e.preventDefault();
+                fetch("{% url 'login' %}") // Carrega o conteúdo do login.html
+                    .then(response => response.text())
+                    .then(html => {
+                        loginContent.innerHTML = html;
+                        loginPopup.style.display = "block";
+                    })
+                    .catch(err => console.error("Erro ao carregar o formulário de login:", err));
+            });
+
+            // Fechar popup
+            closeLoginPopup?.addEventListener("click", function () {
+                loginPopup.style.display = "none";
+            });
+        });
+    </script>
+    {% endblock %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>

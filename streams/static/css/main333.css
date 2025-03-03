@@ -1,0 +1,42 @@
+/*.video-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: black;
+}
+*/
+.main-grid-container {
+    display: grid;
+    grid-template-columns: 80% 40%;
+}
+
+#video-container {
+    display: flex; /* Usa flexbox para alinhar itens lado a lado */
+    justify-content: center; /* Centraliza os vídeos horizontalmente */
+    align-items: center; /* Centraliza os vídeos verticalmente */
+    flex-wrap: wrap; /* Permite que os vídeos se ajustem se necessário */
+}
+
+video {
+    width: 45%; /* Define a largura para que haja espaço para ambos os vídeos */
+    max-width: 300px; /* Define uma largura máxima para telas menores */
+    margin: 5px; /* Adiciona margem entre os vídeos */
+}
+
+#btn-share-screen {
+    margin-top: 20px; /* Ajuste o valor para o espaçamento desejado */
+}
+
+#local-video, video {
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes newMessageAnimation {
+    0% { background-color: yellow; }
+    100% { background-color: transparent; }
+}
+
+.message {
+    animation: newMessageAnimation 1s ease-out;
+}
+

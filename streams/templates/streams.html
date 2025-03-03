@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+<head>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+    <style>
+        #video-container {
+            display: flex;
+            flex-direction: column; /* Alinha os vídeos em coluna */
+            align-items: center; /* Centraliza os vídeos */
+            flex: 1; /* Permite que o container de vídeos ocupe o espaço disponível */
+        }
+
+        video {
+            width: 100%; /* Ajusta a largura dos vídeos */
+            max-width: 600px; /* Define uma largura máxima para os vídeos */
+            margin-bottom: 10px; /* Espaçamento entre os vídeos */
+        }
+
+        /* Container para os botões ao lado do vídeo */
+        .controls-container {
+            display: flex;
+            flex-direction: column; /* Empilha os botões verticalmente */
+            gap: 10px; /* Espaçamento entre os botões */
+            align-items: flex-start; /* Alinha os botões à esquerda */
+            padding: 10px;
+            margin-left: 20px; /* Distância entre os vídeos e os botões */
+        }
+
+        /* Alinhamento do chat */
+        #chat {
+            margin-top: 20px; /* Espaçamento acima do chat */
+            margin-left: auto;
+            margin-right: auto;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .main-grid-container {
+            display: flex;
+            align-items: flex-start; /* Alinha o conteúdo no topo */
+            justify-content: space-between; /* Espalha os vídeos e controles */
+        }
+    </style>
+</head>
+
+{% block conteudo %}
+<br>
+<br>
+
+<div class="container">
+    <div class="main-grid-container">
+        <!-- Video Container -->
+        <div id="video-container">
+            <div>
+                <video id="local-video" autoplay playsinline></video>
+            </div>
+            <div>
+                <video id="remote-video" autoplay playsinline></video>
+            </div>
+        </div>
+
+        <!-- Controles (Botões) -->
+        <div class="controls-container">
+            <button id="btn-share-screen" class="btn btn-primary">Compartilhar Tela</button>
+            <button id="btn-stop-share-screen" class="btn btn-danger">Parar Compartilhamento</button><br><br>
+            <button id="btn-toggle-audio" class="btn btn-secondary" aria-label="Ativar/Desativar Áudio">Audio Unmute</button>
+        </div>
+    </div>
+
+    <!-- Chat -->   
+    <div id="chat" class="mt-1">
+        <h3>   CHAT <i class="bi bi-chat-fill"></i></h3>
+        <div id="messages">
+            <ul id="message-list"></ul>
+        </div>
+        <div>
+            <input id="msg" class="mb-1 form-control" placeholder="Digite sua mensagem">
+            <button id="btn-send-msg" class="btn btn-primary mb-1">Enviar Mensagem</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="{% static 'js/main.js' %}"></script>
+
+{% endblock %}
