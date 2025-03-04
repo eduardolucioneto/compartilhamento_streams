@@ -18,6 +18,10 @@ ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS= ["https://compartilhamentostreams-production.up.railway.app"]
 
+CORS_ALLOWED_ORIGINS = [
+    'https://compartilhamentostreams-production.up.railway.app',
+]
+
 # usar variáveis de ambiente do banco de dados
 
 DATABASES = {      
