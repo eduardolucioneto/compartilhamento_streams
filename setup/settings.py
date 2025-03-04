@@ -35,6 +35,7 @@ DATABASES = {
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',  # Add this line
     'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -47,6 +48,7 @@ INSTALLED_APPS = [
     'streams',
     'jogos',
     'crispy_forms',
+    # 'webrtc',
     'crispy_bootstrap5',
 ]
 

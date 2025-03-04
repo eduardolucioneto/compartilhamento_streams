@@ -178,6 +178,7 @@ function createAnswerer(offer, peerUsername, receiver_channel_name) {
         .then(() => console.log('Resposta criada e descrição local definida.'));
 }
 
+
 function handleICECandidate(peer, action, receiver_channel_name, event) {
     if (!event.candidate) {
         sendSignal(action, { sdp: peer.localDescription, receiver_channel_name });
