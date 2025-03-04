@@ -16,8 +16,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+<<<<<<< HEAD
 CSRF_TRUSTED_ORIGINS= ["https://compartilhamentostreams-production.up.railway.app/"]
 
+=======
+CSRF_TRUSTED_ORIGINS = ["https://compartilhamentostreams-production.up.railway.app/"]
+CSRF_COOKIE_HTTPONLY = False
+>>>>>>> 73157c22abf7c820f76a74a4623678fea0a829cc
 # usar variáveis de ambiente do banco de dados
 
 DATABASES = {      
