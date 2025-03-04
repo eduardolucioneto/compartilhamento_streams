@@ -70,14 +70,8 @@ btnJoin.addEventListener('click', () => {
     labelUsername.innerHTML = username;
 
     var loc = window.location;
-    var wsStart = 'ws://';
-
-    if (loc.protocol == 'https:') {
-        wsStart = 'wss://';
-    }
-
-    var endPoint = wsStart + loc.host + loc.pathname;
-    webSocket = new WebSocket(endPoint);
+    var wsStart = loc.protocol === 'https:' ? 'wss://' : 'ws://';
+    var endPoint = wsStart + loc.host + loc.pathname;    webSocket = new WebSocket(endPoint);
 
     webSocket.addEventListener('open', () => {
         console.log('Conexão aberta!');
@@ -95,28 +89,47 @@ var localStream = new MediaStream();
 const localVideo = document.querySelector('#local-video');
 const btnShareScreen = document.querySelector('#btn-share-screen');
 
-btnShareScreen.addEventListener('click', () => {
-    navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
-        .then(stream => {
-            localStream = stream;
-            localVideo.srcObject = localStream;
-            localVideo.muted = true;
+btnShareScreen.addEventListener('click', async () => {
+    try {
+        const stream = await navigator.mediaDevices.getDisplayMedia({ 
+            video: { 
+                cursor: "always",
+                displaySurface: "browser" // Specify display surface
+            }, 
+            audio: true 
+        });
+        
+        localStream = stream;
+        localVideo.srcObject = localStream;
+        localVideo.muted = true;
 
-            // Substituir as trilhas nos peers já conectados
-            for (const [peerUsername, [peer, _]] of Object.entries(mapPeers)) {
-                const sender = peer.getSenders().find(s => s.track.kind === 'video');
-                if (sender) sender.replaceTrack(stream.getVideoTracks()[0]);
-            }
+        // Detailed logging for track sharing
+        console.log('Screen share tracks:', {
+            videoTracks: stream.getVideoTracks(),
+            audioTracks: stream.getAudioTracks()
+        });
 
-            // Manter controle sobre a troca de tela
-            stream.getVideoTracks()[0].addEventListener('ended', () => {
-                console.log('Compartilhamento de tela encerrado.');
-                // Volte para a câmera ou deixe um placeholder aqui.
+        // Robust track replacement
+        Object.values(mapPeers).forEach(([peer, dc]) => {
+            peer.getSenders().forEach(sender => {
+                if (sender.track.kind === 'video') {
+                    console.log('Replacing video track');
+                    sender.replaceTrack(stream.getVideoTracks()[0])
+                        .then(() => console.log('Video track replaced successfully'))
+                        .catch(err => console.error('Video track replacement error:', err));
+                }
+                if (sender.track.kind === 'audio') {
+                    console.log('Replacing audio track');
+                    sender.replaceTrack(stream.getAudioTracks()[0])
+                        .then(() => console.log('Audio track replaced successfully'))
+                        .catch(err => console.error('Audio track replacement error:', err));
+                }
             });
-        })
-        .catch(error => console.error('Erro ao compartilhar tela:', error));
+        });
+    } catch (err) {
+        console.error('Screen sharing error:', err);
+    }
 });
-
 // Adicionar evento addstream ao objeto peer
 peer.onaddstream = (event) => {
   console.log('Vídeo compartilhado recebido!');
@@ -150,7 +163,16 @@ function sendSignal(action, message) {
 // Funções de WebRTC para oferta e resposta
 function createOfferer(peerUsername, receiver_channel_name) {
     var peer = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            // Add TURN servers for better NAT traversal
+            {
+                urls: 'turn:your-turn-server.com',
+                username: 'your-username',
+                credential: 'your-password'
+            }
+        ]
     });
 
     addLocalTracks(peer);
@@ -173,7 +195,16 @@ function createOfferer(peerUsername, receiver_channel_name) {
 
 function createAnswerer(offer, peerUsername, receiver_channel_name) {
     var peer = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            // Add TURN servers for better NAT traversal
+            {
+                urls: 'turn:your-turn-server.com',
+                username: 'your-username',
+                credential: 'your-password'
+            }
+        ]
     });
 
     addLocalTracks(peer);
@@ -243,8 +274,15 @@ function setOnTrack(peer, remoteVideo) {
     var remoteStream = new MediaStream();
     remoteVideo.srcObject = remoteStream;
 
-    peer.addEventListener('track', event => remoteStream.addTrack(event.track));
+    peer.addEventListener('connectionstatechange', () => {
+        console.log('Peer connection state:', {
+            connectionState: peer.connectionState,
+            iceConnectionState: peer.iceConnectionState
+        });
+    });
+    
 }
+
 
 function removeVideo(video) {
     var videoWrapper = video.parentNode;
