@@ -1,0 +1,28 @@
+.video-grid-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    background-color: black;
+}
+
+.main-grid-container {
+    display: grid;
+    grid-template-columns: 10% 10%;    
+}
+
+video {    
+    background-color: black;
+}
+
+.controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+    border-top: 1px solid #dee2e6;
+    display: flex;
+    justify-content: center;
+    padding: 10px 0;
+    z-index: 1000;
+}
