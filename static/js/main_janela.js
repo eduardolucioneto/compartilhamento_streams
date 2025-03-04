@@ -84,6 +84,27 @@ var localStream = new MediaStream();
 const localVideo = document.querySelector('#local-video');
 const btnShareScreen = document.querySelector('#btn-share-screen');
 
+// btnShareScreen.addEventListener('click', () => {
+//     navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
+//         .then(stream => {
+//             localStream = stream;
+//             localVideo.srcObject = localStream;
+//             localVideo.muted = true;
+
+//             // Substituir as trilhas nos peers já conectados
+//             for (const [peerUsername, [peer, _]] of Object.entries(mapPeers)) {
+//                 const sender = peer.getSenders().find(s => s.track.kind === 'video');
+//                 if (sender) sender.replaceTrack(stream.getVideoTracks()[0]);
+//             }
+
+//             // Manter controle sobre a troca de tela
+//             stream.getVideoTracks()[0].addEventListener('ended', () => {
+//                 console.log('Compartilhamento de tela encerrado.');
+//                 // Volte para a câmera ou deixe um placeholder aqui.
+//             });
+//         })
+//         .catch(error => console.error('Erro ao compartilhar tela:', error));
+// });
 btnShareScreen.addEventListener('click', () => {
     navigator.mediaDevices.getDisplayMedia({ video: true, audio: true })
         .then(stream => {
@@ -91,20 +112,19 @@ btnShareScreen.addEventListener('click', () => {
             localVideo.srcObject = localStream;
             localVideo.muted = true;
 
-            // Substituir as trilhas nos peers já conectados
+            // Log the track being shared
+            console.log('Sharing screen track:', stream.getVideoTracks()[0]);
+
             for (const [peerUsername, [peer, _]] of Object.entries(mapPeers)) {
                 const sender = peer.getSenders().find(s => s.track.kind === 'video');
-                if (sender) sender.replaceTrack(stream.getVideoTracks()[0]);
+                if (sender) {
+                    sender.replaceTrack(stream.getVideoTracks()[0]);
+                    console.log('Track replaced for peer:', peerUsername);
+                }
             }
-
-            // Manter controle sobre a troca de tela
-            stream.getVideoTracks()[0].addEventListener('ended', () => {
-                console.log('Compartilhamento de tela encerrado.');
-                // Volte para a câmera ou deixe um placeholder aqui.
-            });
         })
-        .catch(error => console.error('Erro ao compartilhar tela:', error));
 });
+
 
 // Chat e envio de mensagens
 var btnSendMsg = document.querySelector('#btn-send-msg');
@@ -226,7 +246,10 @@ function setOnTrack(peer, remoteVideo) {
     var remoteStream = new MediaStream();
     remoteVideo.srcObject = remoteStream;
 
-    peer.addEventListener('track', event => remoteStream.addTrack(event.track));
+    peer.addEventListener('track', async (event) => {
+        console.log('Received remote track:', event.track.kind);
+        remoteStream.addTrack(event.track);
+    });
 }
 
 function removeVideo(video) {
@@ -237,3 +260,7 @@ function removeVideo(video) {
 function getDataChannels() {
     return Object.values(mapPeers).map(([_, dc]) => dc);
 }
+
+peer.addEventListener('connectionstatechange', () => {
+    console.log('Connection state:', peer.connectionState);
+});
