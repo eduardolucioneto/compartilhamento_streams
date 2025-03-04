@@ -9,9 +9,32 @@ var username;
 
 var webSocket;
 
+function sendSignal(action, message) {
+    console.log('Sending signal:', { 
+        peer: username, 
+        action: action, 
+        message: message 
+    });
+    const jsonStr = JSON.stringify({ 
+        peer: username, 
+        action: action, 
+        message: message 
+    });
+    webSocket.send(jsonStr);
+}
+
 // Função para lidar com mensagens WebSocket
 function webSocketOnMessage(event) {
+    console.log('Received WebSocket message:', event.data);
     var parseData = JSON.parse(event.data);
+    
+    // More detailed logging
+    console.log('Parsed data:', {
+        peerUsername: parseData['peer'],
+        action: parseData['action'],
+        message: parseData['message']
+    });
+
     var peerUsername = parseData['peer'];
     var action = parseData['action'];
 
@@ -140,7 +163,13 @@ btnSendMsg.addEventListener('click', () => {
     var dataChannels = getDataChannels();
     message = username + ': ' + message;
 
-    dataChannels.forEach(dc => dc.send(message));
+    dataChannels.forEach(dc => {
+        if (dc.readyState === 'open') {
+            dc.send(message);
+        } else {
+            console.log('Data channel not open:', dc);
+        }
+    });
     messageInput.value = '';
 });
 
@@ -152,30 +181,58 @@ function sendSignal(action, message) {
 // Funções de WebRTC para oferta e resposta
 function createOfferer(peerUsername, receiver_channel_name) {
     var peer = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+        ]
     });
 
-    addLocalTracks(peer);
+    var dc = peer.createDataChannel('channel', {
+        negotiated: true,
+        id: 0
+    });
+    
+    dc.onopen = () => {
+        console.log('Data channel opened for offerer');
+        dc.send(`Hello from ${username}`);
+    };
+    dc.onmessage = dcOnMessage;
 
-    var dc = peer.createDataChannel('channel');
-    dc.addEventListener('message', dcOnMessage);
+    addLocalTracks(peer);
 
     var remoteVideo = createVideo(peerUsername);
     setOnTrack(peer, remoteVideo);
 
     mapPeers[peerUsername] = [peer, dc];
 
-    peer.addEventListener('iceconnectionstatechange', () => handleICEState(peer, peerUsername, remoteVideo));
-    peer.addEventListener('icecandidate', event => handleICECandidate(peer, 'new-offer', receiver_channel_name, event));
+    peer.addEventListener('iceconnectionstatechange', () => {
+        console.log(`ICE connection state for ${peerUsername}:`, peer.iceConnectionState);
+        handleICEState(peer, peerUsername, remoteVideo);
+    });
+
+    peer.addEventListener('icecandidate', event => {
+        console.log('ICE candidate for offerer:', event.candidate);
+        handleICECandidate(peer, 'new-offer', receiver_channel_name, event);
+    });
 
     peer.createOffer()
         .then(o => peer.setLocalDescription(o))
-        .then(() => console.log('Descrição local definida com sucesso.'));
+        .then(() => {
+            console.log('Offerer local description set');
+            sendSignal('new-offer', { 
+                sdp: peer.localDescription, 
+                receiver_channel_name: receiver_channel_name 
+            });
+        })
+        .catch(error => console.error('Offer creation error:', error));
 }
 
 function createAnswerer(offer, peerUsername, receiver_channel_name) {
     var peer = new RTCPeerConnection({
-        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+        ]
     });
 
     addLocalTracks(peer);
@@ -185,17 +242,35 @@ function createAnswerer(offer, peerUsername, receiver_channel_name) {
 
     peer.addEventListener('datachannel', e => {
         var dc = e.channel;
-        dc.addEventListener('message', dcOnMessage);
+        dc.onopen = () => {
+            console.log('Data channel opened for answerer');
+            dc.send(`Hello from ${username}`);
+        };
+        dc.onmessage = dcOnMessage;
         mapPeers[peerUsername] = [peer, dc];
     });
 
-    peer.addEventListener('iceconnectionstatechange', () => handleICEState(peer, peerUsername, remoteVideo));
-    peer.addEventListener('icecandidate', event => handleICECandidate(peer, 'new-answer', receiver_channel_name, event));
+    peer.addEventListener('iceconnectionstatechange', () => {
+        console.log(`ICE connection state for ${peerUsername}:`, peer.iceConnectionState);
+        handleICEState(peer, peerUsername, remoteVideo);
+    });
+
+    peer.addEventListener('icecandidate', event => {
+        console.log('ICE candidate for answerer:', event.candidate);
+        handleICECandidate(peer, 'new-answer', receiver_channel_name, event);
+    });
 
     peer.setRemoteDescription(offer)
         .then(() => peer.createAnswer())
         .then(a => peer.setLocalDescription(a))
-        .then(() => console.log('Resposta criada e descrição local definida.'));
+        .then(() => {
+            console.log('Answerer local description set');
+            sendSignal('new-answer', { 
+                sdp: peer.localDescription, 
+                receiver_channel_name: receiver_channel_name 
+            });
+        })
+        .catch(error => console.error('Answer creation error:', error));
 }
 
 
