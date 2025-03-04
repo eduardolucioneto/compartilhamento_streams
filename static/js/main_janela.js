@@ -106,79 +106,6 @@ btnShareScreen.addEventListener('click', () => {
         .catch(error => console.error('Erro ao compartilhar tela:', error));
 });
 
-// configuração de compartilhamento de audio
-var localAudioStream = new MediaStream();
-const localAudio = document.querySelector('#local-audio');
-const btnShareAudio = document.querySelector('#btn-share-audio');
-btnShareAudio.addEventListener('click', () => {
-    navigator.mediaDevices.getUserMedia({ audio: true })
-        .then(stream => {
-            localAudioStream = stream;
-            localAudio.srcObject = localAudioStream;
-            localAudio.muted = true;
-            localAudio.muted = true;
-            localAudio.muted = true;
-            // Substituir as trilhas nos peers já conectados
-            for (const [peerUsername, [peer, _]] of Object.entries(mapPeers)) {
-                const sender = peer.getSenders().find(s => s.track.kind === 'audio');
-                if (sender) sender.replaceTrack(stream.getAudioTracks()[0]);
-            }
-        })
-        .catch(
-            error => console.error('Erro ao compartilhar áudio:', error)
-        );
-});
-// Função para obter canais de dados
-function getDataChannels() {
-    const dataChannels = [];
-    for (const peer of Object.values(mapPeers).map(p => p[0])) {
-        dataChannels.push(peer.getTransceivers().find(t => t.sender.track.kind === 'video').receiver.transport);
-    }
-    return dataChannels;    
-}
-
-// Função para enviar sinal para outros usuários
-function sendSignal(action, message) {
-    const jsonStr = JSON.stringify({ peer: username, action: action, message: message });
-    webSocket.send(jsonStr);
-}
-// Função para criar um novo ofertador
-function createOfferer(peerUsername, receiver_channel_name) {
-    const peer = new RTCPeerConnection();
-    const offer = peer.createOffer();
-    peer.setLocalDescription(offer);
-    const jsonStr = JSON.stringify({ peer: peerUsername, action: 'new-offer', message: { sdp: peer.localDescription } });
-    webSocket.send(jsonStr);
-    const dataChannels = getDataChannels();
-    dataChannels.forEach(dc => dc.send(receiver_channel_name));
-    return peer;
-}
-// Função para criar um novo aceitador
-function createAccepter(peerUsername, offer) {
-    const peer = new RTCPeerConnection();
-    peer.setRemoteDescription(offer);
-    const answer = peer.createAnswer();
-    peer.setLocalDescription
-    (answer);
-    const jsonStr = JSON.stringify({ peer: peerUsername, action: 'new-answer', message: { sdp: peer.localDescription } });
-    webSocket.send(jsonStr);
-    return peer;
-    FunçãobtnShareAudio.addEventListener('click', () => {
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                console.log('Áudio capturado:', stream.getAudioTracks());
-                localAudioStream = stream;
-                localAudio.srcObject = localAudioStream;
-                localAudio.muted = true;
-                // ...for (const [peerUsername, [peer, _]] of Object.entries(mapPeers)) {
-                    const sender = peer.getSenders().find(s => s.track.kind === 'audio');
-                    if (sender) {
-                        console.log('Enviando áudio para peer:', peerUsername);
-                        sender.replaceTrack(stream.getAudioTracks()[0]);
-                    }
-                }
-}
-
 // Chat e envio de mensagens
 var btnSendMsg = document.querySelector('#btn-send-msg');
 var messageList = document.querySelector('#message-list');
@@ -231,7 +158,7 @@ function createAnswerer(offer, peerUsername, receiver_channel_name) {
         iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     });
 
-    addLocalTracks(peer); style="display: none;"
+    addLocalTracks(peer);
 
     var remoteVideo = createVideo(peerUsername);
     setOnTrack(peer, remoteVideo);
